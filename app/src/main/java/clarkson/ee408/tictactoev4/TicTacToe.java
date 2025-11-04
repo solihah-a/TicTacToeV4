@@ -1,13 +1,20 @@
 package clarkson.ee408.tictactoev4;
 
-public class TicTacToe {
+import java.io.Serializable;
+
+public class TicTacToe implements Serializable {
     public static final int SIDE = 3;
+    private int player;
     private int turn;
     private int [][] game;
 
-    public TicTacToe( ) {
+    public TicTacToe( int player) {
         game = new int[SIDE][SIDE];
-        resetGame( );
+        resetGame();
+        this.player = player;
+    }
+    public TicTacToe( ) {
+        this(1);
     }
 
     public int play( int row, int col ) {
@@ -85,11 +92,33 @@ public class TicTacToe {
     }
 
     public String result( ) {
-        if( whoWon( ) > 0 )
-            return "Player " + turn + " won; Game is over";
+        int winner = whoWon();
+        if (winner > 0 ) {
+            if (winner == player ) {
+                return "You Won";
+            }
+            else {
+                return "You Lost";
+            }
+        }
         else if( canNotPlay( ) )
             return "Tie Game";
         else
-            return "PLAYING !!";
+            return "PLAYING!";
+    }
+    public int getPlayer() {
+        return player;
+    }
+    public void setPlayer(int player) {
+        this.player = player;
+    }
+    public int getTurn() {
+        return turn;
+    }
+    public void setTurn(int newTurn) {
+        this.turn = newTurn;
+    }
+    public int[][] getGame() {
+        return game;
     }
 }
