@@ -18,13 +18,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 // Imports for Tasks 4, 7, 8
-import clarkson.ee408.tictactoev4.client.AppExecutors;
-import clarkson.ee408.tictactoev4.client.SocketClient;
-import clarkson.ee408.tictactoev4.socket.Request;
-import clarkson.ee408.tictactoev4.socket.RequestType;
-import clarkson.ee408.tictactoev4.socket.GamingResponse;
-import clarkson.ee408.tictactoev4.socket.Response;
-import clarkson.ee408.tictactoev4.socket.ResponseStatus;
+import java.io.IOException;
+
+import clarkson.ee408.tictactoev4.client.*;
+import clarkson.ee408.tictactoev4.socket.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate( savedInstanceState );
 
         // Task 5: Initialize game with a placeholder Player ID (e.g., 1)
-        tttGame = new TicTacToe(1);
+        tttGame = new TicTacToe(2);
         buildGuiByCode( );
 
         // Task 2: Initialize Gson
@@ -55,6 +52,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // --- Task 8: Handler Initialization ---
         handler = new Handler(Looper.getMainLooper());
+
+        AppExecutors.getInstance().networkIO().execute(() -> {
+            try {
+                Log.i(TAG, "Attempting to connect to server...");
+                SocketClient.getInstance().connect();
+                Log.i(TAG, "Server connection established successfully.");
+
+            } catch (IOException e) {
+                Log.e(TAG, "FATAL: Server connection failed!", e);
+                // Optionally, prompt the user that the game cannot start.
+            }
+        });
 
         // Define the Runnable action: requestMove()
         moveRequestRunnable = new Runnable() {
