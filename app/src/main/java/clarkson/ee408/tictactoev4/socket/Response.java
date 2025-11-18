@@ -1,69 +1,83 @@
 package clarkson.ee408.tictactoev4.socket;
 
-import java.io.Serializable;
-import java.util.Objects;
+/**
+ *  Response class sent by the server in response to client request
+ *
+ * @author Ahmad Suleiman
+ */
+public class Response {
 
-public class Response implements Serializable {
+
+	/**
+	 * Various response status sent the server
+	 */
+	public enum ResponseStatus {
+		/**
+		 * Status when everything about the request went well with no errors and no invalid input
+		 */
+		SUCCESS,
+
+		/**
+		 * Status when something went wrong in the request, either errors or invalid input
+		 */
+		FAILURE
+	}
+
+	/**
+	 * Status to indicate success or failure of the request
+	 */
     private ResponseStatus status;
-    private String message;
 
-    /**
-     * A default constructor for the Response class.
-     */
-    public Response() {
-        // Default initialization.
-    }
+	/**
+	 * Explanation of the success or failure of the request
+	 */
+	private String message;
 
-    /**
-     * A constructor that sets all attributes of this class.
-     *
-     * @param status The status of the server response (SUCCESS or FAILURE).
-     * @param message A string message description about the status of the client-server communication.
-     */
-    public Response(ResponseStatus status, String message) {
-        this.status = status;
-        this.message = message;
-    }
+	/**
+	 * Default constructor
+	 */
+	public Response() {
+	}
 
-    public ResponseStatus getStatus() {
-        return status;
-    }
+	/**
+	 *
+	 * @param status Status to indicate success or failure of the request
+	 * @param message Explanation of the success or failure of the request
+	 */
+	public Response(ResponseStatus status, String message) {
+		this.status = status;
+		this.message = message;
+	}
 
-    public void setStatus(ResponseStatus status) {
-        this.status = status;
-    }
+	/**
+	 * Getter function for {@link #status} attribute
+	 * @return status
+	 */
+	public ResponseStatus getStatus() {
+		return status;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	/**
+	 * Setter function for {@link #status} attribute
+	 * @param status Status to indicate success or failure of the request
+	 */
+	public void setStatus(ResponseStatus status) {
+		this.status = status;
+	}
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+	/**
+	 * Getter function for {@link #message} attribute
+	 * @return message
+	 */
+	public String getMessage() {
+		return message;
+	}
 
-    /**
-     * Overrides the default equals method.
-     * Two Response objects are considered equal if both their status and message attributes are equal.
-     *
-     * @param o The object to compare with.
-     * @return true if both status and message are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Response response = (Response) o;
-        return status == response.status && Objects.equals(message, response.message);
-    }
-
-    /**
-     * Overrides the default hashCode method.
-     * Must be overridden whenever equals() is overridden to maintain the general contract.
-     *
-     * @return The hash code based on the status and message attributes.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(status, message);
-    }
+	/**
+	 * Setter function for {@link #message} attribute
+	 * @param message Explanation of the success or failure of the request
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
 }

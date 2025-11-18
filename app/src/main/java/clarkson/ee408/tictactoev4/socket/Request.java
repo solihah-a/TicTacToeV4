@@ -1,74 +1,130 @@
 package clarkson.ee408.tictactoev4.socket;
 
-import java.io.Serializable;
-import java.util.Objects;
+import clarkson.ee408.tictactoev4.model.*;
 
 /**
- * Models a client's request sent to the server. The server always expects
- * an object of this class when receiving a request from a client.
+ * Class for all request sent by the client to the server
+ *
+ * @author Ahmad Suleiman
  */
-public class Request implements Serializable{
-    private RequestType type;
-    private String data;
+public class Request {
 
-    /**
-     * A default constructor for the Request class.
-     */
-    public Request() {
-        // Default initialization.
-    }
+	/**
+	 * Various type of requests a client can send
+	 */
+	public enum RequestType {
+		/**
+		 * Login request, {@link #data} is serialized object of {@link User}
+		 */
+		LOGIN,
 
-    /**
-     * A constructor that sets all attributes of this class.
-     *
-     * @param type The type of client request.
-     * @param data A string representation of serialized data sent by the client.
-     */
-    public Request(RequestType type, String data) {
-        this.type = type;
-        this.data = data;
-    }
+		/**
+		 * Registration request, {@link #data} is serialized object of {@link User}
+		 */
+		REGISTER,
 
-    public RequestType getType() {
-        return type;
-    }
+		/**
+		 * Request to get pairing update, {@link #data} is null
+		 */
+		UPDATE_PAIRING,
 
-    public void setType(RequestType type) {
-        this.type = type;
-    }
+		/**
+		 * Request to send game invitation, {@link #data} is serialized object of {@link Event#getOpponent()}
+		 */
+		SEND_INVITATION,
 
-    public String getData() {
-        return data;
-    }
+		/**
+		 * Request to accept game invitation, {@link #data} is serialized object of {@link Event#getEventId()}
+		 */
+		ACCEPT_INVITATION,
 
-    public void setData(String data) {
-        this.data = data;
-    }
+		/**
+		 * Request to decline game invitation, {@link #data} is serialized object of {@link Event#getEventId()}
+		 */
+		DECLINE_INVITATION,
 
-    /**
-     * Overrides the default equals method.
-     * Two Request objects are considered equal if both their type and data attributes are equal.
-     *
-     * @param o The object to compare with.
-     * @return true if both type and data are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Request request = (Request) o;
-        return type == request.type && Objects.equals(data, request.data);
-    }
+		/**
+		 * Request to acknowledge opponent invitation response, {@link #data} is serialized object of {@link Event#getEventId()}
+		 */
+		ACKNOWLEDGE_RESPONSE,
 
-    /**
-     * Overrides the default hashCode method.
-     * Must be overridden whenever equals() is overridden to maintain the general contract.
-     *
-     * @return The hash code based on the type and data attributes.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(type, data);
-    }
+		/**
+		 * Request to get user's opponent last move, {@link #data} is null
+		 */
+		REQUEST_MOVE,
+
+		/**
+		 * Request to send a game move, {@link #data} is Integer from 0-8 (TicTacToe cell)
+		 */
+		SEND_MOVE,
+
+		/**
+		 * Request to abort current game, {@link #data} is null
+		 */
+		ABORT_GAME,
+
+		/**
+		 * Request to complete current game after receiving last game move, {@link #data} is null
+		 */
+		COMPLETE_GAME,
+	}
+
+	/**
+	 * The type of request client sends to the server
+	 */
+	private RequestType type;
+
+	/**
+	 * The request payload, it's a serialized string of the payload object
+	 */
+	private String data;
+
+	/**
+	 * Default constructor
+	 */
+	public Request() {
+	}
+
+	/**
+	 *
+	 * @param type The type of request client sends to the server
+	 * @param data The request payload, it's a serialized string of the payload object
+	 */
+	public Request(RequestType type, String data) {
+		this.type = type;
+		this.data = data;
+	}
+
+	/**
+	 * Getter function for {@link #type} attribute
+	 * @return type
+	 */
+	public RequestType getType() {
+		return type;
+	}
+
+	/**
+	 * Setter function for {@link #type} attribute
+	 * @param type The type of request client sends to the server
+	 */
+	public void setType(RequestType type) {
+		this.type = type;
+	}
+
+	/**
+	 * Getter function for {@link #data} attribute
+	 * @return data
+	 */
+	public String getData() {
+		return data;
+	}
+
+	/**
+	 * Setter function for {@link #data} attribute
+	 * @param data The request payload, it's a serialized string of the payload object
+	 */
+	public void setData(String data) {
+		this.data = data;
+	}
+
 }
-

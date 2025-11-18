@@ -1,160 +1,134 @@
 package clarkson.ee408.tictactoev4.client;
 
-import clarkson.ee408.tictactoev4.socket.Request;
-import clarkson.ee408.tictactoev4.socket.Response;
+import android.util.Log;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import clarkson.ee408.tictactoev4.socket.Request;
+import clarkson.ee408.tictactoev4.socket.Response;
 
 /**
- * A Singleton class that manages the client-side socket connection,
- * ensuring only one connection is established across the application.
+ * A singleton class that helps the Android application connect to the socket server.
  */
-public class SocketClient {
+public final class SocketClient {
 
-    // ------------------- Static Variable (Singleton Instance) -------------------
+    private static final Object CONNECTION_LOCK_OBJECT = new Object();
+    private static final Object LOCK_OBJECT = new Object();
+    private static final String SERVER_HOST = "10.128.27.197";
+    private static final int SERVER_PORT = 5000;
+    private static final int SOCKET_TIMEOUT = 10000; // 10 seconds
+    private static final String TAG = "SocketClient";
 
-    /** Stores the single instance of the SocketClient class. */
-    private static SocketClient instance;
+    private static SocketClient INSTANCE;
 
-    // ------------------- Class Attributes -------------------
+    private final Gson gson;
 
     private Socket socket;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
-    private Gson gson; // Used for serialization and deserialization
 
-    // Executor for handling network operations off the main UI thread
-    private ExecutorService executor;
-
-    // ------------------- Host and Port Configuration -------------------
-
-    // NOTE: This must match the server configuration
-    private static final String HOST = "10.0.2.2"; // Android emulator loopback address for host machine
-    private static final int PORT = 5000;
-
-    // ------------------- Private Constructor -------------------
-
-    /**
-     * Private constructor for the Singleton pattern.
-     * Initializes Gson and the ExecutorService.
-     */
     private SocketClient() {
-        this.gson = new Gson();
-        // Use a single-thread executor for synchronous network requests
-        this.executor = Executors.newSingleThreadExecutor();
+        this.gson = new GsonBuilder().serializeNulls().create();
     }
 
-    // ------------------- Static Getter (Thread-Safe) -------------------
+    /**
+     * Close the socket connection and all I/O streams.
+     */
+    public void close() {
+        synchronized (CONNECTION_LOCK_OBJECT) {
+            quietClose(this.inputStream);
+            quietClose(this.outputStream);
+            quietClose(this.socket);
+            Log.i(TAG, "Connection closed");
+        }
+    }
 
     /**
-     * Provides the global access point to the single SocketClient instance.
-     * Uses double-checked locking for thread-safe lazy initialization.
+     * Sends a {@code Request} to the server serialized as JSON and returns the response deserialized as {@code responseClass}.
      *
-     * @return The single SocketClient instance.
+     * @param request the object to serialize and send to the server
+     * @param responseClass the class of T
+     * @param <T> the type of the desired object
+     * @return the response from the server deserialized from JSON to an object of class T. Returns
+     *      {@code null} if the response is null, empty, or invalid JSON
+     * @throws IOException on errors connecting or communicating with the server
+     */
+    public <T extends Response> T sendRequest(Request request, Class<T> responseClass)
+            throws IOException {
+
+        synchronized (CONNECTION_LOCK_OBJECT) {
+            // Open the connection to the server
+            connect();
+
+            // Serialize the request to JSON and send it to the server
+            String requestJson = this.gson.toJson(request);
+            this.outputStream.writeUTF(requestJson);
+            this.outputStream.flush();
+
+            // Wait for a JSON response
+            String response = this.inputStream.readUTF();
+
+            // Deserialize the received JSON
+            try {
+                return this.gson.fromJson(response, responseClass);
+            } catch (JsonSyntaxException ex) {
+                Log.e(TAG, "Error deserializing JSON", ex);
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Returns the only instance of {@code SocketClient}.
+     *
+     * @return the {@code SocketClient} instance
      */
     public static SocketClient getInstance() {
-        if (instance == null) {
-            synchronized (SocketClient.class) { // Synchronized block for thread safety
-                if (instance == null) {
-                    instance = new SocketClient();
+        if (INSTANCE == null) {
+            synchronized (LOCK_OBJECT) {
+                if (INSTANCE == null) {
+                    INSTANCE = new SocketClient();
                 }
             }
         }
-        return instance;
+
+        return INSTANCE;
     }
 
-    // ------------------- Connection Management -------------------
-
-    /**
-     * Connects to the server and initializes I/O streams.
-     * Note: This method should be called on a separate thread (e.g., using the Executor).
-     *
-     * @throws IOException if connection or stream setup fails.
-     */
-    public void connect() throws IOException {
-        if (socket == null || socket.isClosed()) {
-            socket = new Socket(HOST, PORT);
-            outputStream = new DataOutputStream(socket.getOutputStream());
-            inputStream = new DataInputStream(socket.getInputStream());
+    private void quietClose(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException ex) {
+            // nom-nom the exception
         }
     }
 
-    /**
-     * Closes the socket connection and all I/O streams.
-     */
-    public void close() {
-        try {
-            if (outputStream != null) outputStream.close();
-        } catch (IOException e) {
-            System.err.println("Error closing output stream: " + e.getMessage());
+    private void connect() throws IOException {
+        // Synchronization is handled by the caller
+        if (this.socket == null || !this.socket.isConnected()) {
+            // Create socket and connect
+            this.socket = new Socket();
+            this.socket.connect(new InetSocketAddress(SERVER_HOST, SERVER_PORT));
+
+            Log.i(TAG, "Client connected to server");
+
+            // Don't want to wait forever for input from the server
+            this.socket.setSoTimeout(SOCKET_TIMEOUT);
+
+            // Set up streams
+            this.inputStream = new DataInputStream(socket.getInputStream());
+            this.outputStream = new DataOutputStream(socket.getOutputStream());
         }
-        try {
-            if (inputStream != null) inputStream.close();
-        } catch (IOException e) {
-            System.err.println("Error closing input stream: " + e.getMessage());
-        }
-        try {
-            if (socket != null && !socket.isClosed()) socket.close();
-        } catch (IOException e) {
-            System.err.println("Error closing socket: " + e.getMessage());
-        }
-    }
-
-    // ------------------- Request/Response Handling (Generic) -------------------
-
-    /**
-     * Sends a serialized Request to the server and waits for a response.
-     * This function should be called ONLY from the background executor thread.
-     *
-     * @param request The Request object to be sent.
-     * @param responseClass The Class/Type of the expected Response (e.g., Response.class or GamingResponse.class).
-     * @param <T> The generic type of the expected Response class.
-     * @return The deserialized response object of type T, or null on failure.
-     */
-    public <T extends Response> T sendRequest(Request request, Class<T> responseClass) {
-        if (socket == null || socket.isClosed()) {
-            System.err.println("Socket is not connected. Cannot send request.");
-            return null;
-        }
-
-        try {
-            // 1. Serialize the request
-            String serializedRequest = gson.toJson(request);
-
-            // 2. Send the serialized request
-            outputStream.writeUTF(serializedRequest);
-            outputStream.flush();
-
-            // 3. Read the serialized response from the server
-            String serializedResponse = inputStream.readUTF();
-
-            // 4. Deserialize the response to the specified class/type
-            return gson.fromJson(serializedResponse, (Type) responseClass);
-
-        } catch (IOException e) {
-            System.err.println("Error during socket communication: " + e.getMessage());
-            // Attempt to close the connection on communication failure
-            close();
-            return null;
-        } catch (Exception e) {
-            System.err.println("Error during serialization/deserialization: " + e.getMessage());
-            return null;
-        }
-    }
-
-    // ------------------- Executor Getter -------------------
-
-    /**
-     * Getter for the ExecutorService to allow the MainActivity to run network tasks.
-     * @return The ExecutorService.
-     */
-    public ExecutorService getExecutor() {
-        return executor;
     }
 }

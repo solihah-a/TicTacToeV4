@@ -1,73 +1,73 @@
 package clarkson.ee408.tictactoev4.socket;
 
-import java.io.Serializable;
-import java.util.Objects;
+import clarkson.ee408.tictactoev4.model.Event;
 
 /**
- * Server response to a REQUEST_MOVE request. This class is a subclass of Response.
- * It carries the opponent's last move and the active status of the game.
+ *  Subclass of {@link Response}
+ *	This response class is used in response to clients request of type {@link Request.RequestType#REQUEST_MOVE}
+ *  @author Ahmad Suleiman
  */
-public class GamingResponse extends Response implements Serializable {
-    private Integer move;
-    private Boolean active;
+public class GamingResponse extends Response {
 
-    /**
-     * A default constructor for the GamingResponse class.
-     * Calls the default constructor of the superclass (Response).
-     */
-    public GamingResponse() {
-        super();
-    }
+	/**
+	 * The last move of the game, value is from 0-8
+	 */
+	int move;
 
-    /**
-     * A constructor that sets all attributes of this class, including those inherited from Response.
-     * Calls the constructor of the superclass.
-     *
-     * @param status The status of the server response (SUCCESS or FAILURE).
-     * @param message A string message description about the status of the client-server communication.
-     * @param move An integer representing the last move made by the opponent (0-8).
-     * @param active A boolean variable to indicate if the opponent is still active in the game.
-     */
-    public GamingResponse(ResponseStatus status, String message, Integer move, Boolean active) {
-        // Call the superclass constructor to set status and message
-        super(status, message);
-        this.move = move;
-        this.active = active;
-    }
+	/**
+	 * If the game is in play. That is {@link Event#getStatus()} is equal to {@link Event.EventStatus#PLAYING}
+	 */
+	boolean active;
 
-    /**
-     * Overrides the default equals method.
-     * Two GamingResponse objects are considered equal if they are equal to the superclass
-     * and their specific attributes (move and active) are also equal.
-     *
-     * @param o The object to compare with.
-     * @return true if both objects are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false; // Check superclass equality
-        GamingResponse that = (GamingResponse) o;
-        return Objects.equals(move, that.move) && Objects.equals(active, that.active);
-    }
+	/**
+	 * Default constructor, calls parent's class constructor
+	 */
+	public GamingResponse() {
+		super();
+	}
 
-    /**
-     * Overrides the default hashCode method.
-     * Must be overridden whenever equals() is overridden.
-     *
-     * @return The hash code based on the superclass, move, and active attributes.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), move, active);
-    }
+	/**
+	 *
+	 * @param status Status to indicate success or failure of the request
+	 * @param message Explanation of the success or failure of the request
+	 * @param move The last move of the game, value is from 0-8
+	 * @param active If the game is in play. That is {@link Event#getStatus()} is equal to {@link Event.EventStatus#PLAYING}
+	 */
+	public GamingResponse(ResponseStatus status, String message, int move, boolean active) {
+		super(status, message);
+		this.move = move;
+		this.active = active;
+	}
 
-    public Integer getMove() {
-        return move;
-    }
+	/**
+	 * Getter function for {@link #move} attribute
+	 * @return lastMove
+	 */
+	public int getMove() {
+		return move;
+	}
 
-    public void setMove(Integer move) {
-        this.move = move;
-    }
+	/**
+	 * Setter function for {@link #move} attribute
+	 * @param move The last move of the game, value is from 0-8
+	 */
+	public void setMove(int move) {
+		this.move = move;
+	}
+
+	/**
+	 * Getter function for {@link #active} attribute
+	 * @return active
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * Setter function for {@link #active} attribute
+	 * @param active If the game is in play. That is {@link Event#getStatus()} is equal to {@link Event.EventStatus#PLAYING}
+	 */
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 }

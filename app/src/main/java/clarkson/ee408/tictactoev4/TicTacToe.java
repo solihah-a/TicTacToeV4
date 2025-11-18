@@ -1,131 +1,136 @@
 package clarkson.ee408.tictactoev4;
 
-import java.io.Serializable;
-
-public class TicTacToe implements Serializable {
+public class TicTacToe {
     public static final int SIDE = 3;
-    private int player;
+    private final int[][] game;
     private int turn;
-    private int [][] game;
+    private int player;
 
-    public TicTacToe( int player) {
-        game = new int[SIDE][SIDE];
-        resetGame();
+    /**
+     * Creates a new TicTacToe game board with the given {@code player}.
+     *
+     * @param player the initial player number
+     */
+    public TicTacToe(int player) {
+        this.game = new int[SIDE][SIDE];
         this.player = player;
-    }
-    public TicTacToe( ) {
-        this(1);
+
+        resetGame();
     }
 
-    public int getCell(int row, int col) {
-        if(row >= 0 && col >= 0 && row < SIDE && col < SIDE) {
-            return game[row][col];
-        }
-        return 0;
-    }
-
-    public int play( int row, int col ) {
+    public int play(int row, int col) {
         int currentTurn = turn;
-        if( row >= 0 && col >= 0 && row < SIDE && col < SIDE
-                && game[row][col] == 0 ) {
+        if (row >= 0 && col >= 0 && row < SIDE && col < SIDE
+                && game[row][col] == 0) {
             game[row][col] = turn;
-            if( turn == 1 )
+            if (turn == 1)
                 turn = 2;
             else
                 turn = 1;
             return currentTurn;
-        }
-        else
+        } else
             return 0;
     }
 
-    public int whoWon( ) {
-        int rows = checkRows( );
-        if ( rows > 0 )
+    public int whoWon() {
+        int rows = checkRows();
+        if (rows > 0)
             return rows;
-        int columns = checkColumns( );
-        if( columns > 0 )
+        int columns = checkColumns();
+        if (columns > 0)
             return columns;
-        int diagonals = checkDiagonals( );
-        if( diagonals > 0 )
+        int diagonals = checkDiagonals();
+        if (diagonals > 0)
             return diagonals;
         return 0;
     }
 
-    protected int checkRows( ) {
-        for( int row = 0; row < SIDE; row++ )
-            if ( game[row][0] != 0 && game[row][0] == game[row][1]
-                    && game[row][1] == game[row][2] )
+    protected int checkRows() {
+        for (int row = 0; row < SIDE; row++)
+            if (game[row][0] != 0 && game[row][0] == game[row][1]
+                    && game[row][1] == game[row][2])
                 return game[row][0];
         return 0;
     }
 
-    protected int checkColumns( ) {
-        for( int col = 0; col < SIDE; col++ )
-            if ( game[0][col] != 0 && game[0][col] == game[1][col]
-                    && game[1][col] == game[2][col] )
+    protected int checkColumns() {
+        for (int col = 0; col < SIDE; col++)
+            if (game[0][col] != 0 && game[0][col] == game[1][col]
+                    && game[1][col] == game[2][col])
                 return game[0][col];
         return 0;
     }
 
-    protected int checkDiagonals( ) {
-        if ( game[0][0] != 0 && game[0][0] == game[1][1]
-                && game[1][1] == game[2][2] )
+    protected int checkDiagonals() {
+        if (game[0][0] != 0 && game[0][0] == game[1][1]
+                && game[1][1] == game[2][2])
             return game[0][0];
-        if ( game[0][2] != 0 && game[0][2] == game[1][1]
-                && game[1][1] == game[2][0] )
+        if (game[0][2] != 0 && game[0][2] == game[1][1]
+                && game[1][1] == game[2][0])
             return game[2][0];
         return 0;
     }
 
-    public boolean canNotPlay( ) {
+    public boolean canNotPlay() {
         boolean result = true;
         for (int row = 0; row < SIDE; row++)
-            for( int col = 0; col < SIDE; col++ )
-                if ( game[row][col] == 0 )
+            for (int col = 0; col < SIDE; col++)
+                if (game[row][col] == 0)
                     result = false;
         return result;
     }
 
-    public boolean isGameOver( ) {
-        return canNotPlay( ) || ( whoWon( ) > 0 );
+    public boolean isGameOver() {
+        return canNotPlay() || (whoWon() > 0);
     }
 
-    public void resetGame( ) {
+    public void resetGame() {
         for (int row = 0; row < SIDE; row++)
-            for( int col = 0; col < SIDE; col++ )
+            for (int col = 0; col < SIDE; col++)
                 game[row][col] = 0;
         turn = 1;
     }
 
-    public String result( ) {
-        int winner = whoWon();
-        if (winner > 0 ) {
-            if (winner == player ) {
+    public String result() {
+        final int whoWon = whoWon();
+
+        if (whoWon > 0) {
+            if (this.player == whoWon) {
                 return "You Won";
-            }
-            else {
+            } else {
                 return "You Lost";
             }
-        }
-        else if( canNotPlay( ) )
+        } else if (canNotPlay()) {
             return "Tie Game";
-        else
-            return "PLAYING!";
+        } else {
+            return "PLAY !!";
+        }
     }
+
+    /**
+     * Return the current player number.
+     *
+     * @return the player number
+     */
     public int getPlayer() {
-        return player;
+        return this.player;
     }
+
+    /**
+     * Set the player number.
+     *
+     * @param player the new player number
+     */
     public void setPlayer(int player) {
         this.player = player;
     }
+
+    /**
+     * Gets which player number currently owns the board and can make a move.
+     *
+     * @return the owner of the board
+     */
     public int getTurn() {
-        return turn;
-    }
-    public void setTurn(int newTurn) {
-        this.turn = newTurn;
-    }
-    public int[][] getGame() {
-        return game;
+        return this.turn;
     }
 }

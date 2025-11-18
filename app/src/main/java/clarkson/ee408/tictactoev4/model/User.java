@@ -1,101 +1,129 @@
 package clarkson.ee408.tictactoev4.model;
 
-import java.io.Serializable;
-
 /**
- *  Models a user who will play the TicTacToe game.
- *  Objects of this class are used for registration, login, and player identification.
- *  This class maps directly to the 'User' database table.
+ * Model class for a user that plays TicTacToe game
+ *
+ * @author Ahmad Suleiman
  */
-public class User implements Serializable {
-
-    // Attributes required for the User
+public class User {
+    /**
+     * User's unique username
+     */
     private String username;
-    private String password;
-    private String displayName;
-    private Boolean online;  // e.g., false: Offline, true: Online
 
     /**
-     * A default constructor for the User class.
+     * User's login password
+     */
+    private String password;
+
+    /**
+     * User's display name
+     */
+    private String displayName;
+
+    /**
+     * If the user is connected to the server
+     */
+    private boolean online;
+
+
+    /**
+     * Default constructor
      */
     public User() {
-        // Initializes all fields to their default values (null for objects, false for Boolean)
     }
 
     /**
-     * A constructor that sets all attributes of this class.
      *
-     * @param username The username for the user.
-     * @param password The user's password.
-     * @param displayName The user's display name.
-     * @param online Boolean indicating the user's online status.
+     * @param username User's unique username
+     * @param password User's login password
+     * @param displayName User's display name
+     * @param online If the user is connected to the server
      */
-    public User(String username, String password, String displayName, Boolean online) {
+    public User(String username, String password, String displayName, boolean online) {
         this.username = username;
         this.password = password;
         this.displayName = displayName;
         this.online = online;
     }
 
+    /**
+     * Getter function for {@link #username} attribute
+     * @return username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Setter function for {@link #username} attribute
+     * @param username User's unique username
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Getter function for {@link #password} attribute
+     * @return password
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Setter function for {@link #password} attribute
+     * @param password User's login password
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Getter function for {@link #displayName} attribute
+     * @return displayName
+     */
     public String getDisplayName() {
         return displayName;
     }
 
+    /**
+     * Setter function for {@link #displayName} attribute
+     * @param displayName User's display name
+     */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
-    public Boolean getOnline() {
+    /**
+     * Getter function for {@link #online} attribute
+     * @return online
+     */
+    public Boolean isOnline() {
         return online;
     }
 
-    public void setOnline(Boolean online) {
+    /**
+     * Setter function for {@link #online} attribute
+     * @param online If the user is connected to the server
+     */
+    public void setOnline(boolean online) {
         this.online = online;
     }
 
-    /**
-     * Overrides the default equals method.
-     * Two User objects are considered equal if their usernames are equal,
-     * as the username is the unique identifier.
-     *
-     * @param o The object to compare with.
-     * @return true if the usernames are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        // Use the username as the unique attribute for comparison
-        return username != null ? username.equals(user.username) : user.username == null;
-    }
 
     /**
-     * Overrides the default hashCode method.
-     * Must be overridden whenever equals() is overridden to maintain the general contract.
      *
-     * @return The hash code based on the unique username attribute.
+     * @param obj instance of the other User object
+     * @return true if both objects have equal {@link #username}
      */
     @Override
-    public int hashCode() {
-        return username != null ? username.hashCode() : 0;
+    public boolean equals(Object obj) {
+        try {
+            User other = (User) obj;
+            return this.username.equals(other.getUsername());
+        } catch (ClassCastException e) {
+            return false;
+        }
     }
 }
