@@ -237,7 +237,7 @@ public class PairingActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(false);
         builder.setTitle("Game Invitation");
-        builder.setMessage(invitation.getSender() + " has Requested to Play with You");
+        builder.setMessage(invitation.getSender() + " has requested to play with you");
         builder.setPositiveButton("Accept", (dialogInterface, i) -> acceptInvitation(invitation));
         builder.setNegativeButton("Decline", (dialogInterface, i) -> declineInvitation(invitation));
         builder.show();
