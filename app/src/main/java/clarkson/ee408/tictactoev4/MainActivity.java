@@ -23,7 +23,7 @@ import clarkson.ee408.tictactoev4.socket.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int STARTING_PLAYER_NUMBER = 2;
+    private static final int STARTING_PLAYER_NUMBER = 1;
 
     private TicTacToe tttGame;
     private Button[][] buttons;
