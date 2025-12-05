@@ -1,6 +1,6 @@
 # Milestone 4 Report
 
-* Link to recording for test procedure:
+* Link to recording for test procedure: https://drive.google.com/file/d/1ABu1wgRRjZgHrmeeSaqCRM2cTHek77xz/view?usp=drive_link
 * Explain why we must send a REQUEST_MOVE request even if it is the current user’s turn to move.
    - Even when it is the current player’s turn, REQUEST_MOVE is sent so the client can confirm with the server that the game and the opponent are still active.
      The server’s reply will indicate if the game has been terminated (for example, because the opponent disconnected), allowing the app to end the game immediately,
